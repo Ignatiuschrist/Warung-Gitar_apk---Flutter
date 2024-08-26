@@ -25,7 +25,7 @@ class _RegisterComponentState extends State<RegisterComponent> {
                 SizedBox(height: SizeConfig.screenHeight * 0.04),
                 Center(
                   child: Text(
-                    "Registrasi",
+                    "REGISTRASI",
                     style: mTitleStyle,
                   ),
                 ),

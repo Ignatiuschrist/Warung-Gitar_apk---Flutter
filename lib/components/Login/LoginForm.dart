@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:toko_gitar/components/custom_surfix_icon.dart';
 import 'package:toko_gitar/components/default_button_custom_color.dart';
 import 'package:toko_gitar/screens/Register/Registrasi.dart';
+import 'package:toko_gitar/components/Reset/ResetPassword.dart';
 import 'package:toko_gitar/size_config.dart';
 import 'package:toko_gitar/utils/constants.dart';
+import 'package:toko_gitar/db_helper.dart';
 
 class SignForm extends StatefulWidget {
   @override
@@ -20,11 +22,12 @@ class _SignForm extends State<SignForm> {
   TextEditingController txtUsername = TextEditingController(),
       txtPassword = TextEditingController();
 
-  FocusNode focusNode = new FocusNode();
+  FocusNode focusNode = FocusNode();
 
   @override
   Widget build(BuildContext context) {
     return Form(
+      key: _formKey,
       child: Column(
         children: [
           buildUserName(),
@@ -43,7 +46,9 @@ class _SignForm extends State<SignForm> {
               Text("Tetap Masuk"),
               Spacer(),
               GestureDetector(
-                onTap: () {},
+                onTap: () {
+                  Navigator.pushNamed(context, ResetPasswordPage.routeName);  // Navigate to reset password page
+                },
                 child: Text("Lupa Password",
                   style: TextStyle(
                       decoration: TextDecoration.underline),
@@ -54,10 +59,25 @@ class _SignForm extends State<SignForm> {
           DefaultButtonCustomeColor(
             color: kPrimaryColor,
             text: "MASUK",
-            press: () {},
+            press: () async {
+              if (_formKey.currentState!.validate()) {
+                // Call function to check credentials
+                bool loginSuccess = await checkLogin(
+                    txtUsername.text, txtPassword.text);
+                if (loginSuccess) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Login Berhasil'))
+                  );
+                  Navigator.pushNamed(context, "/home_admin_screens");
+                  // Navigate to the next screen
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Username atau Password salah')));
+                }
+              }
+            },
           ),
-          SizedBox(height: 30,
-          ),
+          SizedBox(height: 30),
           GestureDetector(
             onTap: () {
               Navigator.pushNamed(context, RegisterScreen.routeName);
@@ -95,7 +115,7 @@ class _SignForm extends State<SignForm> {
       obscureText: true,
       style: mTitleStyle,
       decoration: InputDecoration(
-          labelText: 'Passoword',
+          labelText: 'Password',
           hintText: 'Masukkan Password Anda',
           labelStyle: TextStyle(
               color: focusNode.hasFocus ? mSubtitleColor : kPrimaryColor),
@@ -104,5 +124,17 @@ class _SignForm extends State<SignForm> {
           )
       ),
     );
+  }
+
+  Future<bool> checkLogin(String username, String password) async {
+    var dbHelper = DatabaseHelper();
+    List<Map<String, dynamic>> users = await dbHelper.getUsers();
+
+    for (var user in users) {
+      if (user['username'] == username && user['password'] == password) {
+        return true;
+      }
+    }
+    return false;
   }
 }

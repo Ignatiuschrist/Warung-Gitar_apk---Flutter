@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:toko_gitar/components/custom_surfix_icon.dart';
 import 'package:toko_gitar/components/default_button_custom_color.dart';
+import 'package:toko_gitar/db_helper.dart';
 import 'package:toko_gitar/screens/Login/LoginScreens.dart';
 import 'package:toko_gitar/size_config.dart';
 import 'package:toko_gitar/utils/constants.dart';
@@ -11,17 +12,11 @@ class RegisterForm extends StatefulWidget {
 }
 
 class _RegisterForm extends State<RegisterForm> {
-
   final _formKey = GlobalKey<FormState>();
-  String? fullName;
-  String? username;
-  String? email;
-  String? password;
-
-  TextEditingController txtFullName = TextEditingController(),
-      txtUsername = TextEditingController(),
-      txtEmail = TextEditingController(),
-      txtPassword = TextEditingController();
+  final TextEditingController txtFullName = TextEditingController();
+  final TextEditingController txtUsername = TextEditingController();
+  final TextEditingController txtEmail = TextEditingController();
+  final TextEditingController txtPassword = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -40,9 +35,14 @@ class _RegisterForm extends State<RegisterForm> {
           DefaultButtonCustomeColor(
             color: kPrimaryColor,
             text: "REGISTRASI",
-            press: () {
+            press: () async {
               if (_formKey.currentState?.validate() ?? false) {
-                // Handle registration logic
+                // Save the new user to SQLite
+                await registerUser(txtFullName.text, txtUsername.text, txtEmail.text, txtPassword.text);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Pendaftaran berhasil')),
+                );
+                Navigator.pushNamed(context, LoginScreen.routeName);
               }
             },
           ),
@@ -63,11 +63,21 @@ class _RegisterForm extends State<RegisterForm> {
     );
   }
 
+  // Function to save user to SQLite database
+  Future<void> registerUser(String fullName, String username, String email, String password) async {
+    var dbHelper = DatabaseHelper();
+    await dbHelper.insertUser({
+      'nama': fullName,
+      'username': username,
+      'email': email,
+      'password': password,
+    });
+  }
+
   TextFormField buildFullName() {
     return TextFormField(
       controller: txtFullName,
       keyboardType: TextInputType.text,
-      style: mTitleStyle,
       decoration: InputDecoration(
         labelText: 'Nama Lengkap',
         hintText: 'Masukkan nama lengkap anda',
@@ -86,7 +96,6 @@ class _RegisterForm extends State<RegisterForm> {
     return TextFormField(
       controller: txtUsername,
       keyboardType: TextInputType.text,
-      style: mTitleStyle,
       decoration: InputDecoration(
         labelText: 'Username',
         hintText: 'Masukkan username anda',
@@ -105,7 +114,6 @@ class _RegisterForm extends State<RegisterForm> {
     return TextFormField(
       controller: txtEmail,
       keyboardType: TextInputType.emailAddress,
-      style: mTitleStyle,
       decoration: InputDecoration(
         labelText: 'Email',
         hintText: 'Masukkan email anda',
@@ -115,7 +123,6 @@ class _RegisterForm extends State<RegisterForm> {
         if (value == null || value.isEmpty) {
           return 'Masukkan email anda !';
         }
-        // Simple email validation
         if (!RegExp(r'\S+@\S+\.\S+').hasMatch(value)) {
           return 'Masukkan email valid !';
         }
@@ -128,7 +135,6 @@ class _RegisterForm extends State<RegisterForm> {
     return TextFormField(
       controller: txtPassword,
       obscureText: true,
-      style: mTitleStyle,
       decoration: InputDecoration(
         labelText: 'Password',
         hintText: 'Masukkan password anda',
