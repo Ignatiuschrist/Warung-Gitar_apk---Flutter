@@ -19,9 +19,9 @@ class DatabaseHelper {
     String path = join(await getDatabasesPath(), 'toko_gitar.db');
     return await openDatabase(
       path,
-      version: 2, // Version number incremented
+      version: 2,
       onCreate: (db, version) async {
-        // Create users table
+        // Users table
         await db.execute('''
           CREATE TABLE users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -32,7 +32,7 @@ class DatabaseHelper {
           )
         ''');
 
-        // Create items table
+        // Items table
         await db.execute('''
           CREATE TABLE items (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -61,51 +61,67 @@ class DatabaseHelper {
     );
   }
 
-  // Insert a user into the database
+  // Insert into database
   Future<void> insertUser(Map<String, dynamic> user) async {
     final db = await database;
     await db.insert('users', user, conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
-  // Get all users from the database
+  // Get all users from database
   Future<List<Map<String, dynamic>>> getUsers() async {
     final db = await database;
     return await db.query('users');
   }
 
-  // Update a user in the database
+  // Update user in database
   Future<int> updateUser(int id, Map<String, dynamic> user) async {
     final db = await database;
     return await db.update('users', user, where: 'id = ?', whereArgs: [id]);
   }
 
-  // Delete a user from the database
+  // Delete user from database
   Future<int> deleteUser(int id) async {
     final db = await database;
     return await db.delete('users', where: 'id = ?', whereArgs: [id]);
   }
 
-  // Insert an item into the items table
+  // Insert item into items table
   Future<void> insertItem(Map<String, dynamic> item) async {
     final db = await database;
     await db.insert('items', item, conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
-  // Get all items from the items table
+  // Get all items from items table
   Future<List<Map<String, dynamic>>> getItems() async {
     final db = await database;
     return await db.query('items');
   }
 
-  // Update an item in the items table
+  // Update item in items table
   Future<int> updateItem(int id, Map<String, dynamic> item) async {
     final db = await database;
     return await db.update('items', item, where: 'id = ?', whereArgs: [id]);
   }
 
-  // Delete an item from the items table
+  // Delete item from items table
   Future<int> deleteItem(int id) async {
     final db = await database;
     return await db.delete('items', where: 'id = ?', whereArgs: [id]);
+  }
+
+  // Get item by its id from items table
+  Future<Map<String, dynamic>?> getItemById(int id) async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'items',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+
+    if (maps.isNotEmpty) {
+      return maps.first;
+    }
+
+    return null;
   }
 }

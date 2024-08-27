@@ -5,22 +5,40 @@ import 'package:image_picker/image_picker.dart';
 import 'package:toko_gitar/utils/constants.dart';
 import 'package:toko_gitar/db_helper.dart';
 import 'package:toko_gitar/size_config.dart';
-import 'package:toko_gitar/screens/Admin/HomeAdminScreens.dart';
 
-class InputItemForm extends StatefulWidget {
+class EditItemForm extends StatefulWidget {
+  final Map<String, dynamic> itemData;
+
+  EditItemForm({required this.itemData});
+
   @override
-  _InputItemFormState createState() => _InputItemFormState();
+  _EditItemFormState createState() => _EditItemFormState();
 }
 
-class _InputItemFormState extends State<InputItemForm> {
+class _EditItemFormState extends State<EditItemForm> {
   final _formKey = GlobalKey<FormState>();
 
-  TextEditingController namaController = TextEditingController();
-  TextEditingController tipeController = TextEditingController();
-  TextEditingController hargaController = TextEditingController();
-  TextEditingController merkController = TextEditingController();
+  late TextEditingController namaController;
+  late TextEditingController tipeController;
+  late TextEditingController hargaController;
+  late TextEditingController merkController;
 
   File? image;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Initialize controllers with item data
+    namaController = TextEditingController(text: widget.itemData['nama']);
+    tipeController = TextEditingController(text: widget.itemData['tipe']);
+    hargaController = TextEditingController(text: widget.itemData['harga']);
+    merkController = TextEditingController(text: widget.itemData['merk']);
+
+    if (widget.itemData['gambar'] != '') {
+      image = File(widget.itemData['gambar']);
+    }
+  }
 
   Future<void> pilihGambar() async {
     try {
@@ -34,29 +52,21 @@ class _InputItemFormState extends State<InputItemForm> {
     }
   }
 
-  Future<void> insertItem() async {
+  Future<void> updateItem() async {
     var dbHelper = DatabaseHelper();
-    await dbHelper.insertItem({
+    await dbHelper.updateItem(widget.itemData['id'], {
       'nama': namaController.text,
       'tipe': tipeController.text,
       'harga': hargaController.text,
       'merk': merkController.text,
-      'gambar': image?.path ?? '',
+      'gambar': image?.path ?? widget.itemData['gambar'],
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Item berhasil ditambahkan')),
+      SnackBar(content: Text('Item berhasil diperbarui')),
     );
 
-    Navigator.pushReplacementNamed(context, HomeAdminScreens.routeName);
-
-    namaController.clear();
-    tipeController.clear();
-    hargaController.clear();
-    merkController.clear();
-    setState(() {
-      image = null;
-    });
+    Navigator.pop(context, true);
   }
 
   @override
@@ -97,12 +107,10 @@ class _InputItemFormState extends State<InputItemForm> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: kPrimaryColor,
                 ),
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    insertItem();
-                  }
+                onPressed: () async {
+                  await updateItem();
                 },
-                child: Text('SUBMIT'),
+                child: Text('UPDATE'),
               ),
             ),
           ],

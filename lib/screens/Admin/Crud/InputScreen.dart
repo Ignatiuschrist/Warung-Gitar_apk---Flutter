@@ -15,7 +15,7 @@ class InputScreen extends StatelessWidget {
           style: TextStyle(color: mTitleColor, fontWeight: FontWeight.bold),
         ),
       ),
-      body: InputItemComponent(), // Integrating the InputItemComponent
+      body: InputItemComponent(),
     );
   }
 }

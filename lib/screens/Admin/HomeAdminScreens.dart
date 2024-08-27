@@ -1,6 +1,6 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:toko_gitar/screens/Admin/Crud/InputScreen.dart';
+import 'package:toko_gitar/screens/Login/LoginScreens.dart';
 import 'package:toko_gitar/utils/constants.dart';
 import 'package:toko_gitar/components/Admin/HomeAdminComponent.dart';
 
@@ -35,7 +35,7 @@ class HomeAdminScreens extends StatelessWidget {
                     color: mTitleColor,
                     fontWeight: FontWeight.bold,
                   ),
-                )
+                ),
               ],
             ),
           ),
@@ -46,7 +46,16 @@ class HomeAdminScreens extends StatelessWidget {
       ),
       body: HomeAdminComponent(),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () async {
+          bool confirmLogout = await _confirmLogout(context);
+          if (confirmLogout) {
+            Navigator.pushNamedAndRemoveUntil(
+              context,
+              LoginScreen.routeName,
+                  (Route<dynamic> route) => false,
+            );
+          }
+        },
         backgroundColor: kColorRedSlow,
         child: Icon(
           Icons.logout,
@@ -54,5 +63,27 @@ class HomeAdminScreens extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<bool> _confirmLogout(BuildContext context) async {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Konfirmasi Logout', style: mTitleStyle),
+          content: Text('Apakah Anda yakin ingin logout?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text('Tidak', style: mTitleStyle),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: Text('Ya', style: mTitleStyle),
+            ),
+          ],
+        );
+      },
+    ).then((value) => value ?? false);
   }
 }

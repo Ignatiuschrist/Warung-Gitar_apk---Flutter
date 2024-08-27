@@ -30,7 +30,7 @@ class _RegisterComponentState extends State<RegisterComponent> {
                   ),
                 ),
                 SizedBox(height: 30),
-                RegisterForm(), // Use the RegisterForm widget
+                RegisterForm(),
               ],
             ),
           ),

@@ -23,7 +23,7 @@ class DefaultButtonCustomeColor extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
-          foregroundColor: Colors.white, // Updated from 'primary' to 'foregroundColor'
+          foregroundColor: Colors.white,
           backgroundColor: color,
         ),
         onPressed: press as void Function()?,

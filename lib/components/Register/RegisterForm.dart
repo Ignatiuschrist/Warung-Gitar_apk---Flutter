@@ -63,7 +63,7 @@ class _RegisterForm extends State<RegisterForm> {
     );
   }
 
-  // Function to save user to SQLite database
+  // SQLite database
   Future<void> registerUser(String fullName, String username, String email, String password) async {
     var dbHelper = DatabaseHelper();
     await dbHelper.insertUser({

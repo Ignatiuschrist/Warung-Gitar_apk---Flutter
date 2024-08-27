@@ -47,7 +47,7 @@ class _LoginComponentState extends State<LoginComponent> {
                   ),
                 ),
                 SizedBox(height: 20),
-                SignForm(), // Correctly use the SignForm widget
+                SignForm(),
               ],
             ),
           ),
